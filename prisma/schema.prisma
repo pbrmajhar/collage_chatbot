@@ -1,0 +1,75 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum SlotStatus {
+  OPEN
+  BOOKED
+  CLOSED
+}
+
+enum BookingStatus {
+  PENDING
+  CONFIRMED
+  CANCELLED
+}
+
+enum ContentLanguage {
+  JA
+  EN
+}
+
+model AvailableSlot {
+  id        String     @id @default(cuid())
+  startsAt  DateTime
+  endsAt    DateTime?
+  topic     String
+  status    SlotStatus @default(OPEN)
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  bookings  Booking[]
+
+  @@index([startsAt])
+  @@index([status, startsAt])
+}
+
+model Booking {
+  id           String        @id @default(cuid())
+  slotId       String
+  studentName  String
+  studentEmail String
+  studentPhone String?
+  language     String        @default("ja")
+  status       BookingStatus @default(CONFIRMED)
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  slot         AvailableSlot @relation(fields: [slotId], references: [id], onDelete: Restrict)
+
+  @@unique([studentPhone])
+  @@index([slotId])
+  @@index([studentEmail])
+}
+
+model CollegeInfo {
+  id        String          @id @default(cuid())
+  language  ContentLanguage
+  title     String
+  content   String
+  isActive  Boolean         @default(true)
+  sortOrder Int             @default(0)
+  createdAt DateTime        @default(now())
+  updatedAt DateTime        @updatedAt
+
+  @@index([language, isActive, sortOrder])
+}
+
+model AdminSetting {
+  key       String   @id
+  value     String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}

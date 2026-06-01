@@ -1,0 +1,241 @@
+[ja]
+学校名: 愛和システムエンジニア専門学校
+
+概要:
+愛和システムエンジニア専門学校は、IT・システム開発・ネットワーク・ビジネススキルを学ぶ学生を支援する専門学校です。学生が基礎から実践まで段階的に学び、将来の就職やキャリア形成につなげられるようサポートします。
+
+主な学習分野:
+- プログラミング基礎
+- Webアプリケーション開発
+- データベース
+- ネットワーク基礎
+- 情報セキュリティ
+- システム設計
+- ビジネスマナー
+- 日本語コミュニケーション
+
+入学案内:
+入学に関する詳しい条件、出願期間、必要書類、選考方法は年度によって変わる場合があります。最新情報は学校の入学窓口または公式案内で確認してください。
+
+学費:
+学費、教材費、その他の費用は年度やコースによって異なる場合があります。正確な金額は学校の募集要項または事務窓口で確認してください。
+
+奨学金:
+利用できる奨学金や支援制度がある場合があります。対象条件や申請方法は制度によって異なるため、学校の担当窓口に確認してください。
+
+学校生活:
+学生は授業、課題、実習、進路相談を通じて、IT分野で必要な知識とスキルを学びます。困ったことがある場合は、担任、事務室、進路担当に相談できます。
+
+就職支援:
+履歴書作成、面接練習、企業研究、進路相談などの就職サポートを行います。具体的な求人情報や就職実績は時期によって変わるため、進路担当に確認してください。
+
+回答ルール:
+- この情報に書かれている内容を優先して回答してください。
+- 回答は短めにしてください。通常は2〜4文で十分です。
+- 不明な情報は作らず、「学校の窓口に確認してください」と案内してください。
+- 学生や保護者に向けて、丁寧でわかりやすい日本語で回答してください。
+
+[en]
+School name: Aiwa System Engineer College
+
+愛和システムエンジニア専門学校 (ASE)
+
+愛和システムエンジニア専門学校 公式サイト
+
+Basic Information
+School Name: 愛和システムエンジニア専門学校 (Aiwa System Engineer College)
+Type: Vocational College (専門学校)
+Location: 愛和システムエンジニア専門学校
+Address: 4-21-11 Hakataekimae, Hakata-ku, Fukuoka City, Japan
+Phone: 092-433-3232
+Nearest Station: Hakata Station (approximately 8 minutes on foot)
+School website: https://aiwa-itec.ac.jp/index.html
+
+About the School
+
+The school specializes in training students to become IT engineers through a highly practical ("超実践") curriculum. Instead of focusing only on theory, students learn by building real projects, participating in team development, and practicing workflows similar to those used in software companies. The curriculum was developed with support from over 100 IT companies.
+
+Courses
+ITエンジニア学科 (2 Years)
+
+This is the main course for students who want to become software engineers.
+
+Subjects include:
+
+Java SE
+Java EE (Servlet, JSP, MVC)
+HTML5
+CSS
+JavaScript
+Database (SQL)
+Git
+PHP
+Laravel
+Python
+Django
+C#
+Android Development
+Linux
+Team Development
+Internship
+Job Hunting Preparation
+System Development Practice
+プログラミング総合科 (1 Year)
+
+A preparatory course mainly for international students who need to improve:
+
+Japanese language
+IT basics
+Typing skills
+Programming fundamentals
+
+before entering the 2-year IT Engineer Course.
+
+Educational Style
+
+ASE emphasizes:
+
+Hands-on coding
+Individual projects
+Team development
+Product presentations
+Practical exercises
+Internship opportunities
+Industry-standard tools such as Git and Linux
+
+The school's philosophy is learning by building rather than only studying theory.
+
+Technologies Taught
+Web Development
+HTML
+CSS
+JavaScript
+PHP
+Laravel
+Python
+Django
+Backend Development
+Java
+Servlet
+JSP
+MVC
+Mobile Development
+Android
+Database
+SQL
+Database Design
+Infrastructure
+Linux
+Shell Scripts
+Git Version Control
+Programming Languages
+Java
+JavaScript
+PHP
+Python
+C#
+Qualifications
+
+Students prepare for certifications such as:
+
+OCJP (Oracle Certified Java Programmer)
+Java Programming Certification
+Basic IT qualifications
+Teachers
+
+The instructors are professional engineers rather than only academic teachers.
+
+Examples include:
+
+Miura Tatusya
+Database Specialist
+Applied Information Technology Engineer
+Oomizu Hinaki
+Japanese Teaching License
+Basic Information Technology Engineer
+Employment Results
+
+According to the school:
+
+Graduates work as:
+Web Developers
+Mobile Engineers
+Infrastructure Engineers
+Embedded Engineers
+Bridge SEs
+Students find jobs in:
+Tokyo
+Osaka
+Fukuoka
+The school reports a network of over 100 partner companies.
+
+Another AIWA Group page states:
+
+Employment rate: 91%
+Work visa acquisition rate: 100% for reported graduates.
+International Students
+
+The school is particularly popular among international students.
+
+Features include:
+
+Multinational classrooms
+Japanese language support
+IT-focused curriculum
+Career support
+Work visa guidance after graduation
+Open Campus
+
+Open Campus usually includes:
+
+School introduction
+Curriculum explanation
+Employment explanation
+Programming experience session
+Student Q&A
+Classroom observation (on Wednesdays)
+What Employers Like About ASE Students
+
+Based on the school's curriculum:
+
+Experience with team development
+Git version control
+Practical project work
+Web application development
+Presentation skills
+Multicultural teamwork
+
+Overview:
+Aiwa System Engineer College is a vocational school that supports students studying IT, system development, networking, and business skills. The school helps students learn step by step from the basics to practical skills so they can prepare for employment and future careers.
+
+Main study areas:
+- Programming fundamentals
+- Web application development
+- Databases
+- Networking basics
+- Information security
+- System design
+- Business manners
+- Japanese communication
+
+Admissions:
+Admission requirements, application periods, required documents, and selection methods may change depending on the academic year. Students should confirm the latest details with the school admissions office or official school materials.
+
+Tuition and fees:
+Tuition, textbook fees, and other costs may differ depending on the academic year and course. Students should confirm accurate amounts in the official application guide or with the school office.
+Tuition fee is 100000 yen
+
+Scholarships:
+Scholarships or support programs may be available. Eligibility and application procedures depend on each program, so students should confirm details with the school office.
+
+Student life:
+Students learn knowledge and skills needed in the IT field through classes, assignments, practical training, and career counseling. If students need help, they can consult their homeroom teacher, the school office, or the career support staff.
+
+Career support:
+The school provides career support such as resume guidance, interview practice, company research, and career counseling. Specific job openings and employment results may change by season, so students should confirm details with the career support staff.
+
+Answer rules:
+- Prioritize the information written in this file.
+- Keep answers short. Usually 2-4 sentences are enough.
+- Do not invent unknown details. Tell the user to confirm with the school office.
+- Answer clearly and politely for students and guardians.
