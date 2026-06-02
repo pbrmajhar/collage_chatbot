@@ -1,6 +1,14 @@
 import { SlotStatus, type AvailableSlot } from "@prisma/client";
 
+export type AdminSlotBooking = {
+  id: string;
+  studentEmail: string;
+  studentName: string;
+  studentPhone: string;
+};
+
 export type AdminSlot = {
+  bookings: AdminSlotBooking[];
   id: string;
   date: string;
   fromTime: string;
@@ -8,6 +16,17 @@ export type AdminSlot = {
   timeRange: string;
   topic: string;
   status: "open" | "booked" | "closed";
+};
+
+type SlotBooking = {
+  id: string;
+  studentEmail: string;
+  studentName: string;
+  studentPhone: string | null;
+};
+
+type SlotWithBookings = AvailableSlot & {
+  bookings?: SlotBooking[];
 };
 
 function formatTokyoDateTime(date: Date) {
@@ -29,7 +48,7 @@ function formatTokyoDateTime(date: Date) {
   };
 }
 
-export function toAdminSlot(slot: AvailableSlot): AdminSlot {
+export function toAdminSlot(slot: SlotWithBookings): AdminSlot {
   const startsAt = new Date(slot.startsAt);
   const endsAt = slot.endsAt
     ? new Date(slot.endsAt)
@@ -38,6 +57,12 @@ export function toAdminSlot(slot: AvailableSlot): AdminSlot {
   const end = formatTokyoDateTime(endsAt);
 
   return {
+    bookings: (slot.bookings ?? []).map((booking) => ({
+      id: booking.id,
+      studentEmail: booking.studentEmail,
+      studentName: booking.studentName,
+      studentPhone: booking.studentPhone ?? "",
+    })),
     id: slot.id,
     date: start.date,
     fromTime: start.time,

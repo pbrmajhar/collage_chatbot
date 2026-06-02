@@ -38,6 +38,15 @@ export function AdminSettingsForm({
 }: AdminSettingsFormProps) {
   const [title, setTitle] = useState(initialSettings.title);
   const [subtitle, setSubtitle] = useState(initialSettings.subtitle);
+  const [mainBackgroundColor, setMainBackgroundColor] = useState(
+    initialSettings.mainBackgroundColor,
+  );
+  const [chatBackgroundColor, setChatBackgroundColor] = useState(
+    initialSettings.chatBackgroundColor,
+  );
+  const [widgetBubbleIconUrl, setWidgetBubbleIconUrl] = useState(
+    initialSettings.widgetBubbleIconUrl,
+  );
   const [message, setMessage] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
 
@@ -52,7 +61,13 @@ export function AdminSettingsForm({
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ subtitle, title }),
+        body: JSON.stringify({
+          chatBackgroundColor,
+          mainBackgroundColor,
+          subtitle,
+          title,
+          widgetBubbleIconUrl,
+        }),
       });
       const data = await readSettingsResponse(response);
 
@@ -62,6 +77,9 @@ export function AdminSettingsForm({
 
       setTitle(data.settings.title);
       setSubtitle(data.settings.subtitle);
+      setMainBackgroundColor(data.settings.mainBackgroundColor);
+      setChatBackgroundColor(data.settings.chatBackgroundColor);
+      setWidgetBubbleIconUrl(data.settings.widgetBubbleIconUrl);
       setMessage("Settings saved. Refresh or navigate to see the header update.");
     } catch (error) {
       setMessage(
@@ -103,6 +121,84 @@ export function AdminSettingsForm({
               placeholder="Manage chatbot knowledge and booking slots."
               required
             />
+          </label>
+
+           <div>
+            <span className="text-xs font-medium uppercase tracking-wide text-slate-400">
+              Background colors
+            </span>
+            <div className="mt-2 grid gap-3 sm:grid-cols-2">
+              <label className="rounded-xl border border-white/10 bg-slate-900 p-3">
+                <span className="block text-xs text-slate-400">
+                  Main background
+                </span>
+                <div className="mt-2 flex items-center gap-2">
+                  <input
+                    type="color"
+                    value={mainBackgroundColor}
+                    onChange={(event) =>
+                      setMainBackgroundColor(event.target.value)
+                    }
+                    className="h-9 w-12 rounded border border-white/10 bg-transparent"
+                  />
+                  <input
+                    value={mainBackgroundColor}
+                    onChange={(event) =>
+                      setMainBackgroundColor(event.target.value)
+                    }
+                    className="min-w-0 flex-1 bg-transparent text-sm text-white outline-none"
+                  />
+                </div>
+              </label>
+
+              <label className="rounded-xl border border-white/10 bg-slate-900 p-3">
+                <span className="block text-xs text-slate-400">
+                  Chat/Admin panel
+                </span>
+                <div className="mt-2 flex items-center gap-2">
+                  <input
+                    type="color"
+                    value={chatBackgroundColor}
+                    onChange={(event) =>
+                      setChatBackgroundColor(event.target.value)
+                    }
+                    className="h-9 w-12 rounded border border-white/10 bg-transparent"
+                  />
+                  <input
+                    value={chatBackgroundColor}
+                    onChange={(event) =>
+                      setChatBackgroundColor(event.target.value)
+                    }
+                    className="min-w-0 flex-1 bg-transparent text-sm text-white outline-none"
+                  />
+                </div>
+              </label>
+            </div>
+          </div>
+
+          <label className="block">
+            <span className="text-xs font-medium uppercase tracking-wide text-slate-400">
+              Widget bubble icon URL
+            </span>
+            <div className="mt-1 flex items-center gap-3">
+              <input
+                type="url"
+                value={widgetBubbleIconUrl}
+                onChange={(event) => setWidgetBubbleIconUrl(event.target.value)}
+                className="min-w-0 flex-1 rounded-xl border border-white/10 bg-slate-900 px-3 py-2.5 text-sm text-white outline-none placeholder:text-slate-500 focus:border-teal-300/70"
+                placeholder="https://example.com/chat-icon.png"
+              />
+              {widgetBubbleIconUrl && (
+                <div
+                  aria-hidden="true"
+                  className="h-11 w-11 shrink-0 rounded-full bg-teal-400 bg-cover bg-center"
+                  style={{ backgroundImage: `url(${widgetBubbleIconUrl})` }}
+                />
+              )}
+            </div>
+            <p className="mt-1 text-xs text-slate-500">
+              Leave empty to show the default AI text bubble.
+            </p>
           </label>
         </div>
 

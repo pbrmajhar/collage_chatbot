@@ -8,9 +8,40 @@ import {
 import { isDatabaseConfigured } from "@/lib/database";
 
 type UpdateSettingsBody = {
+  chatBackgroundColor?: unknown;
+  mainBackgroundColor?: unknown;
   subtitle?: unknown;
   title?: unknown;
+  widgetBubbleIconUrl?: unknown;
 };
+
+function getColor(value: unknown, fallback: string) {
+  return typeof value === "string" && /^#[0-9a-fA-F]{6}$/.test(value)
+    ? value
+    : fallback;
+}
+
+function getUrl(value: unknown) {
+  if (typeof value !== "string") {
+    return "";
+  }
+
+  const trimmedValue = value.trim();
+
+  if (!trimmedValue) {
+    return "";
+  }
+
+  try {
+    const url = new URL(trimmedValue);
+
+    return url.protocol === "https:" || url.protocol === "http:"
+      ? trimmedValue
+      : "";
+  } catch {
+    return "";
+  }
+}
 
 export async function GET() {
   try {
@@ -57,6 +88,15 @@ export async function PATCH(request: Request) {
       typeof body.subtitle === "string"
         ? body.subtitle.trim()
         : defaultAdminSettings.subtitle;
+    const mainBackgroundColor = getColor(
+      body.mainBackgroundColor,
+      defaultAdminSettings.mainBackgroundColor,
+    );
+    const chatBackgroundColor = getColor(
+      body.chatBackgroundColor,
+      defaultAdminSettings.chatBackgroundColor,
+    );
+    const widgetBubbleIconUrl = getUrl(body.widgetBubbleIconUrl);
 
     if (!title || !subtitle) {
       return NextResponse.json(
@@ -66,7 +106,13 @@ export async function PATCH(request: Request) {
     }
 
     return NextResponse.json({
-      settings: await updateAdminSettings({ subtitle, title }),
+      settings: await updateAdminSettings({
+        chatBackgroundColor,
+        mainBackgroundColor,
+        subtitle,
+        title,
+        widgetBubbleIconUrl,
+      }),
     });
   } catch (error) {
     console.error("Admin settings PATCH error:", error);

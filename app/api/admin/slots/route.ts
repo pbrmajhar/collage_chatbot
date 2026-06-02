@@ -19,6 +19,19 @@ export async function GET() {
 
   const prisma = getPrisma();
   const slots = await prisma.availableSlot.findMany({
+    include: {
+      bookings: {
+        orderBy: {
+          createdAt: "desc",
+        },
+        select: {
+          id: true,
+          studentEmail: true,
+          studentName: true,
+          studentPhone: true,
+        },
+      },
+    },
     orderBy: { startsAt: "asc" },
   });
 
@@ -63,6 +76,16 @@ export async function POST(request: Request) {
       endsAt,
       startsAt,
       topic,
+    },
+    include: {
+      bookings: {
+        select: {
+          id: true,
+          studentEmail: true,
+          studentName: true,
+          studentPhone: true,
+        },
+      },
     },
   });
 

@@ -2,19 +2,54 @@ import { isDatabaseConfigured } from "@/lib/database";
 import { getPrisma } from "@/lib/prisma";
 
 export type AdminSettings = {
+  chatBackgroundColor: string;
+  mainBackgroundColor: string;
   subtitle: string;
   title: string;
+  widgetBubbleIconUrl: string;
 };
 
 export const defaultAdminSettings: AdminSettings = {
+  chatBackgroundColor: "#020617",
+  mainBackgroundColor: "#151515",
   subtitle: "Manage chatbot knowledge, booking slots, and admin settings.",
   title: "Admin Panel",
+  widgetBubbleIconUrl: "",
 };
 
 const settingKeys = {
+  chatBackgroundColor: "theme.background.chat",
+  mainBackgroundColor: "theme.background.main",
   subtitle: "admin.subtitle",
   title: "admin.title",
+  widgetBubbleIconUrl: "widget.bubble.iconUrl",
 } satisfies Record<keyof AdminSettings, string>;
+
+function isHexColor(value: string) {
+  return /^#[0-9a-fA-F]{6}$/.test(value);
+}
+
+function sanitizeColor(value: string, fallback: string) {
+  return isHexColor(value) ? value : fallback;
+}
+
+function sanitizeUrl(value: string) {
+  const trimmedValue = value.trim();
+
+  if (!trimmedValue) {
+    return "";
+  }
+
+  try {
+    const url = new URL(trimmedValue);
+
+    return url.protocol === "https:" || url.protocol === "http:"
+      ? trimmedValue
+      : "";
+  } catch {
+    return "";
+  }
+}
 
 export async function getAdminSettings(): Promise<AdminSettings> {
   if (!isDatabaseConfigured()) {
@@ -40,9 +75,23 @@ export async function getAdminSettings(): Promise<AdminSettings> {
     );
 
     return {
+      chatBackgroundColor: sanitizeColor(
+        values.get(settingKeys.chatBackgroundColor) ||
+          defaultAdminSettings.chatBackgroundColor,
+        defaultAdminSettings.chatBackgroundColor,
+      ),
+      mainBackgroundColor: sanitizeColor(
+        values.get(settingKeys.mainBackgroundColor) ||
+          defaultAdminSettings.mainBackgroundColor,
+        defaultAdminSettings.mainBackgroundColor,
+      ),
       subtitle:
         values.get(settingKeys.subtitle) || defaultAdminSettings.subtitle,
       title: values.get(settingKeys.title) || defaultAdminSettings.title,
+      widgetBubbleIconUrl: sanitizeUrl(
+        values.get(settingKeys.widgetBubbleIconUrl) ||
+          defaultAdminSettings.widgetBubbleIconUrl,
+      ),
     };
   } catch (error) {
     console.error("Admin settings lookup error:", error);
@@ -60,6 +109,42 @@ export async function updateAdminSettings(settings: AdminSettings) {
   }
 
   await prisma.$transaction([
+    prisma.adminSetting.upsert({
+      create: {
+        key: settingKeys.mainBackgroundColor,
+        value: sanitizeColor(
+          settings.mainBackgroundColor,
+          defaultAdminSettings.mainBackgroundColor,
+        ),
+      },
+      update: {
+        value: sanitizeColor(
+          settings.mainBackgroundColor,
+          defaultAdminSettings.mainBackgroundColor,
+        ),
+      },
+      where: {
+        key: settingKeys.mainBackgroundColor,
+      },
+    }),
+    prisma.adminSetting.upsert({
+      create: {
+        key: settingKeys.chatBackgroundColor,
+        value: sanitizeColor(
+          settings.chatBackgroundColor,
+          defaultAdminSettings.chatBackgroundColor,
+        ),
+      },
+      update: {
+        value: sanitizeColor(
+          settings.chatBackgroundColor,
+          defaultAdminSettings.chatBackgroundColor,
+        ),
+      },
+      where: {
+        key: settingKeys.chatBackgroundColor,
+      },
+    }),
     prisma.adminSetting.upsert({
       create: {
         key: settingKeys.title,
@@ -82,6 +167,18 @@ export async function updateAdminSettings(settings: AdminSettings) {
       },
       where: {
         key: settingKeys.subtitle,
+      },
+    }),
+    prisma.adminSetting.upsert({
+      create: {
+        key: settingKeys.widgetBubbleIconUrl,
+        value: sanitizeUrl(settings.widgetBubbleIconUrl),
+      },
+      update: {
+        value: sanitizeUrl(settings.widgetBubbleIconUrl),
+      },
+      where: {
+        key: settingKeys.widgetBubbleIconUrl,
       },
     }),
   ]);

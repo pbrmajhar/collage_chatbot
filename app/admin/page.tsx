@@ -1,9 +1,17 @@
-import { ArrowRight, BookOpenText, Clock3, Settings } from "lucide-react";
+import {
+  ArrowRight,
+  AlertTriangle,
+  BookOpenText,
+  CalendarCheck,
+  Clock3,
+  Settings,
+} from "lucide-react";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { auth } from "@/auth";
 import { AdminShell } from "@/components/AdminShell";
 import { getAdminSettings } from "@/lib/admin-settings";
+import { getAiServiceNotice } from "@/lib/ai-service-status";
 
 const adminCards = [
   {
@@ -17,6 +25,12 @@ const adminCards = [
     href: "/admin/time-slots",
     icon: Clock3,
     title: "Time Slots",
+  },
+  {
+    description: "View, edit, comment on, and delete student bookings.",
+    href: "/admin/bookings",
+    icon: CalendarCheck,
+    title: "Bookings",
   },
   {
     description: "Change the admin panel title and subtitle.",
@@ -33,6 +47,7 @@ export default async function AdminPage() {
     redirect("/login");
   }
   const settings = await getAdminSettings();
+  const aiServiceNotice = await getAiServiceNotice();
 
   return (
     <AdminShell
@@ -41,6 +56,29 @@ export default async function AdminPage() {
       description={settings.subtitle}
     >
       <section className="min-h-0 flex-1 overflow-y-auto px-5 py-5 sm:px-7">
+        {aiServiceNotice && (
+          <div className="mb-4 rounded-2xl border border-amber-300/20 bg-amber-300/10 p-4 text-amber-50">
+            <div className="flex items-start gap-3">
+              <AlertTriangle
+                aria-hidden="true"
+                className="mt-0.5 h-5 w-5 shrink-0 text-amber-200"
+              />
+              <div>
+                <h2 className="text-sm font-semibold">
+                  AI service attention needed
+                </h2>
+                <p className="mt-1 text-sm text-amber-100">
+                  {aiServiceNotice.message}
+                </p>
+                <p className="mt-2 text-xs text-amber-100/80">
+                  Last detected:{" "}
+                  {new Date(aiServiceNotice.createdAt).toLocaleString("ja-JP")}
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+
         <div className="grid gap-4 sm:grid-cols-2">
           {adminCards.map((card) => {
             const Icon = card.icon;

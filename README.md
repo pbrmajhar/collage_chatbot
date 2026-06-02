@@ -181,11 +181,49 @@ prisma.config.ts      # Prisma 7 の DATABASE_URL 設定
 
 管理画面 `/admin/time-slots` では、予約枠を `Date`、`From`、`To`、`Topic` で作成できます。作成した `OPEN` の時間枠だけがチャットボットの候補として使われます。
 
-管理画面 `/admin/settings` では、管理パネル全体のタイトルとサブタイトルを変更できます。
+管理画面 `/admin/bookings` では、すべての予約を確認できます。予約者名、メール、電話番号、言語、予約枠、ステータス、管理用コメントを編集でき、不要な予約は削除できます。
+
+管理画面 `/admin/settings` では、管理パネル全体のタイトル、サブタイトル、メイン背景色、チャット/管理パネル背景色を変更できます。
+ウィジェットの右下バブルに表示するアイコン画像URLも設定できます。
 
 チャット画面には予約モーダルも表示されます。学生は管理画面で作成された空き時間を選び、名前・メール・電話番号を入力して予約できます。予約が完了しても対象スロットは他の学生にも表示されます。
 
 予約完了後、予約モーダルは自動で閉じます。同じ時間枠に複数人が予約できます。ただし、電話番号は予約ごとに一意である必要があります。
+
+## 外部サイトへの埋め込み
+
+チャットだけを別サイトに埋め込む場合は、iframe 用ページ `/embed/chat` を使います。
+
+```html
+<iframe
+  src="https://your-domain.com/embed/chat?lang=ja"
+  width="100%"
+  height="650"
+  style="border:0;border-radius:16px;"
+></iframe>
+```
+
+Facebook Messenger のような右下のチャットバブルとして表示したい場合は、外部サイトの HTML に次の script を追加します。
+
+```html
+<script
+  src="https://your-domain.com/embed/widget"
+  data-lang="ja"
+  async
+></script>
+```
+
+`data-lang="en"` にすると、英語でチャットを開始できます。
+バブルアイコンは `/admin/settings` の `Widget bubble icon URL` から変更できます。サイトごとに別のアイコンを使う場合は `data-icon-url` で上書きできます。
+
+```html
+<script
+  src="https://your-domain.com/embed/widget"
+  data-lang="ja"
+  data-icon-url="https://example.com/chat-icon.png"
+  async
+></script>
+```
 
 ## APIルート
 

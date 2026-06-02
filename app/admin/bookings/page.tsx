@@ -1,13 +1,14 @@
 import { redirect } from "next/navigation";
 import { auth } from "@/auth";
+import { AdminBookingManager } from "@/components/AdminBookingManager";
 import { AdminShell } from "@/components/AdminShell";
-import { AdminSlotManager } from "@/components/AdminSlotManager";
 import { getAdminSettings } from "@/lib/admin-settings";
+import { toAdminBooking } from "@/lib/bookings";
 import { isDatabaseConfigured } from "@/lib/database";
 import { getPrisma } from "@/lib/prisma";
 import { toAdminSlot } from "@/lib/slots";
 
-export default async function AdminTimeSlotsPage() {
+export default async function AdminBookingsPage() {
   const session = await auth();
 
   if (!session?.user) {
@@ -15,29 +16,30 @@ export default async function AdminTimeSlotsPage() {
   }
 
   const prisma = isDatabaseConfigured() ? getPrisma() : null;
-  const slots = prisma
-    ? await prisma.availableSlot.findMany({
-        include: {
-          bookings: {
-            orderBy: {
-              createdAt: "desc",
-            },
-            select: {
-              id: true,
-              studentEmail: true,
-              studentName: true,
-              studentPhone: true,
-            },
+  const [bookings, slots, settings] = await Promise.all([
+    prisma
+      ? prisma.booking.findMany({
+          include: {
+            slot: true,
           },
-        },
-        orderBy: { startsAt: "asc" },
-      })
-    : [];
-  const settings = await getAdminSettings();
+          orderBy: {
+            createdAt: "desc",
+          },
+        })
+      : [],
+    prisma
+      ? prisma.availableSlot.findMany({
+          orderBy: {
+            startsAt: "asc",
+          },
+        })
+      : [],
+    getAdminSettings(),
+  ]);
 
   return (
     <AdminShell
-      active="time-slots"
+      active="bookings"
       title={settings.title}
       description={settings.subtitle}
     >
@@ -48,12 +50,11 @@ export default async function AdminTimeSlotsPage() {
         </section>
       )}
 
-      <div className="min-h-0 flex-1 overflow-y-auto">
-        <AdminSlotManager
-          initialSlots={slots.map(toAdminSlot)}
-          isDatabaseReady={isDatabaseConfigured()}
-        />
-      </div>
+      <AdminBookingManager
+        initialBookings={bookings.map(toAdminBooking)}
+        initialSlots={slots.map(toAdminSlot)}
+        isDatabaseReady={isDatabaseConfigured()}
+      />
     </AdminShell>
   );
 }

@@ -43,6 +43,7 @@ model Booking {
   studentName  String
   studentEmail String
   studentPhone String?
+  comment      String        @default("")
   language     String        @default("ja")
   status       BookingStatus @default(CONFIRMED)
   createdAt    DateTime      @default(now())

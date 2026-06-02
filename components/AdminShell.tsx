@@ -1,9 +1,9 @@
-import { BookOpenText, Clock3, Settings } from "lucide-react";
+import { BookOpenText, CalendarCheck, Clock3, Settings } from "lucide-react";
 import Link from "next/link";
 import { SignOutButton } from "@/components/SignOutButton";
 
 type AdminShellProps = {
-  active: "home" | "college-info" | "settings" | "time-slots";
+  active: "bookings" | "home" | "college-info" | "settings" | "time-slots";
   children: React.ReactNode;
   description: string;
   title: string;
@@ -23,6 +23,12 @@ const navItems = [
     label: "予約枠",
   },
   {
+    href: "/admin/bookings",
+    icon: CalendarCheck,
+    id: "bookings",
+    label: "予約一覧",
+  },
+  {
     href: "/admin/settings",
     icon: Settings,
     id: "settings",
@@ -38,7 +44,10 @@ export function AdminShell({
 }: AdminShellProps) {
   return (
     <main className="h-screen overflow-hidden px-4 py-6 sm:px-6 lg:px-8">
-      <div className="mx-auto flex h-full w-full max-w-6xl flex-col overflow-hidden rounded-[1.5rem] border border-white/10 bg-slate-950/72 shadow-2xl shadow-black/30 backdrop-blur">
+      <div
+        className="mx-auto flex h-full w-full max-w-6xl flex-col overflow-hidden rounded-[1.5rem] border border-white/10 shadow-2xl shadow-black/30"
+        style={{ backgroundColor: "var(--app-panel-bg)" }}
+      >
         <header className="shrink-0 border-b border-white/10 bg-slate-950/70 px-5 py-4 sm:px-7">
           <div className="flex flex-wrap items-center justify-between gap-4">
             <div>

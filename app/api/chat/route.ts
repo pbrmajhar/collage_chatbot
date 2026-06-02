@@ -4,6 +4,7 @@ import { readFile } from "node:fs/promises";
 import path from "node:path";
 import { SlotStatus } from "@prisma/client";
 import { formatCollegeInfoForPrompt, toContentLanguage } from "@/lib/college-info";
+import { saveAiServiceNotice } from "@/lib/ai-service-status";
 import { isDatabaseConfigured } from "@/lib/database";
 import { getPrisma } from "@/lib/prisma";
 
@@ -19,6 +20,7 @@ const apiCopy: Record<
   {
     apiKeyMissing: string;
     messageRequired: string;
+    rateLimited: string;
     unavailable: string;
     prompt: string;
     questionLabel: string;
@@ -27,6 +29,8 @@ const apiCopy: Record<
   ja: {
     apiKeyMissing: "Gemini APIキーが設定されていません。",
     messageRequired: "メッセージを入力してください。",
+    rateLimited:
+      "Gemini APIの利用上限に達しました。しばらく待ってから再試行するか、Google AI Studioで課金設定を確認してください。",
     unavailable: "現在、回答を生成できません。",
     prompt: `
 あなたは「愛和システムエンジニア専門学校」の学校情報AIチャットボットです。
@@ -41,6 +45,8 @@ const apiCopy: Record<
   en: {
     apiKeyMissing: "Gemini API key is not configured.",
     messageRequired: "Message is required.",
+    rateLimited:
+      "The Gemini API rate limit has been reached. Please wait and try again, or check billing in Google AI Studio.",
     unavailable: "Unable to generate a response right now.",
     prompt: `
 You are the school information AI chatbot for Aiwa System Engineer College.
@@ -56,6 +62,17 @@ If the information is uncertain, do not invent details. Ask the user to confirm 
 
 function getLanguage(value: unknown): Language {
   return value === "en" ? "en" : "ja";
+}
+
+function isRateLimitError(error: unknown) {
+  const message =
+    error instanceof Error
+      ? error.message
+      : typeof error === "string"
+        ? error
+        : JSON.stringify(error);
+
+  return /rate limit|quota|billing|429|resource_exhausted/i.test(message);
 }
 
 async function getCollegeInfo(language: Language) {
@@ -188,6 +205,19 @@ export async function POST(request: Request) {
       reply: response.text,
     });
   } catch (error) {
+    if (isRateLimitError(error)) {
+      console.error("Gemini chat rate limit error:", error);
+
+      await saveAiServiceNotice(
+        "Gemini API rate limit reached. Set up billing in Google AI Studio or wait for the quota to reset.",
+      );
+
+      return NextResponse.json(
+        { adminNotice: true, error: copy.rateLimited },
+        { status: 200 },
+      );
+    }
+
     console.error("Gemini chat error:", error);
 
     return NextResponse.json(

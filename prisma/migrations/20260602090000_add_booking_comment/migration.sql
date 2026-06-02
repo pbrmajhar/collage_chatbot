@@ -1,0 +1,1 @@
+ALTER TABLE "Booking" ADD COLUMN "comment" TEXT NOT NULL DEFAULT '';

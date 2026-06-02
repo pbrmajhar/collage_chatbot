@@ -130,7 +130,7 @@ export function BookingPanel({
         throw new Error(data.error || text.error);
       }
 
-      const successMessage = `${text.success} ${selectedSlot?.date ?? ""} ${selectedSlot?.timeRange ?? ""}`;
+      const successMessage = `${text.success} ${selectedSlot?.topic ?? ""} ${selectedSlot?.date ?? ""} ${selectedSlot?.timeRange ?? ""}`;
       setStudentName("");
       setStudentEmail("");
       setStudentPhone("");
@@ -198,11 +198,25 @@ export function BookingPanel({
                       : "border-white/10 bg-slate-900 text-slate-200 hover:bg-white/10"
                   }`}
                 >
-                  <span className="block font-semibold">{slot.date}</span>
+                  <span className="mt-1 block max-w-36 truncate font-semibold">
+                    {slot.topic}
+                  </span>
+                  <span className="block">{slot.date}</span>
                   <span>{slot.timeRange}</span>
                 </button>
               ))}
             </div>
+
+            {selectedSlot && (
+              <div className="rounded-xl border border-white/10 bg-slate-900/80 px-3 py-2 text-sm text-slate-200">
+                <span className="font-semibold text-white">
+                  {selectedSlot.topic}
+                </span>
+                <span className="ml-2 text-slate-400">
+                  {selectedSlot.date} {selectedSlot.timeRange}
+                </span>
+              </div>
+            )}
 
             <div className="grid gap-2 sm:grid-cols-3">
               <input

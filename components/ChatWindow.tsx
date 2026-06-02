@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { AlertCircle, Languages, Loader2 } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { BookingPanel } from "@/components/BookingPanel";
 import { ChatInput } from "@/components/ChatInput";
 import { ChatMessage, type Message } from "@/components/ChatMessage";
@@ -55,6 +55,7 @@ function createInitialMessages(language: Language): Message[] {
 }
 
 type ChatResponse = {
+  adminNotice?: boolean;
   reply?: string;
   error?: string;
 };
@@ -83,10 +84,14 @@ function createAssistantMessage(content: string): Message {
   };
 }
 
-export function ChatWindow() {
-  const [language, setLanguage] = useState<Language>("ja");
+type ChatWindowProps = {
+  initialLanguage?: Language;
+};
+
+export function ChatWindow({ initialLanguage = "ja" }: ChatWindowProps) {
+  const [language, setLanguage] = useState<Language>(initialLanguage);
   const [messages, setMessages] = useState<Message[]>(() =>
-    createInitialMessages("ja"),
+    createInitialMessages(initialLanguage),
   );
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -138,6 +143,11 @@ export function ChatWindow() {
 
       const data = (await response.json()) as ChatResponse;
 
+      if (data.adminNotice) {
+        console.error("Gemini chat admin notice:", data.error);
+        return;
+      }
+
       if (!response.ok) {
         throw new Error(data.error || copy.requestFallback);
       }
@@ -172,32 +182,38 @@ export function ChatWindow() {
 
   return (
     <section className="flex min-h-0 flex-1 flex-col">
-      <div className="flex shrink-0 flex-wrap items-center justify-between gap-3 border-b border-white/10 px-4 py-3 sm:px-7">
-        <div className="flex items-center gap-2 text-sm text-slate-300">
-          <Languages aria-hidden="true" className="h-4 w-4 text-teal-300" />
-          <span>{copy.languageLabel}</span>
-        </div>
-        <div
-          className="inline-flex rounded-xl border border-white/10 bg-slate-900/80 p-1"
-          role="group"
-          aria-label={copy.languageLabel}
-        >
-          {(["ja", "en"] as const).map((option) => (
-            <button
-              key={option}
-              type="button"
-              onClick={() => handleLanguageChange(option)}
-              disabled={isLoading || language === option}
-              className={`rounded-lg px-3 py-1.5 text-sm font-medium transition ${
-                language === option
-                  ? "bg-teal-400 text-slate-950"
-                  : "text-slate-300 hover:bg-white/10 hover:text-white"
-              } disabled:cursor-default`}
-              aria-pressed={language === option}
-            >
-              {languageLabels[option]}
-            </button>
-          ))}
+      <div className="flex shrink-0 justify-end border-b border-white/10 px-4 py-3 sm:px-7">
+        <div className="flex items-center gap-2">
+          <div
+            className="inline-flex rounded-xl border border-white/10 bg-slate-900/80 p-1"
+            role="group"
+            aria-label={copy.languageLabel}
+          >
+            {(["ja", "en"] as const).map((option) => (
+              <button
+                key={option}
+                type="button"
+                onClick={() => handleLanguageChange(option)}
+                disabled={isLoading || language === option}
+                className={`rounded-lg px-3 py-1.5 text-sm font-medium transition ${
+                  language === option
+                    ? "bg-teal-400 text-slate-950"
+                    : "text-slate-300 hover:bg-white/10 hover:text-white"
+                } disabled:cursor-default`}
+                aria-pressed={language === option}
+              >
+                {languageLabels[option]}
+              </button>
+            ))}
+          </div>
+
+          <button
+            type="button"
+            onClick={() => setIsBookingModalOpen(true)}
+            className="rounded-xl border border-white/10 bg-white/[0.06] px-3 py-2 text-sm font-medium text-slate-100 transition hover:bg-white/10"
+          >
+            {copy.bookingButton}
+          </button>
         </div>
       </div>
 
@@ -216,26 +232,9 @@ export function ChatWindow() {
             </div>
           )}
 
-          {error && (
-            <div className="flex items-start gap-2 rounded-xl border border-red-300/20 bg-red-400/10 px-4 py-3 text-sm text-red-100">
-              <AlertCircle aria-hidden="true" className="mt-0.5 h-4 w-4" />
-              <p>{error}</p>
-            </div>
-          )}
+          {error && <p className="sr-only">{error}</p>}
 
           <div ref={bottomRef} />
-        </div>
-      </div>
-
-      <div className="shrink-0 border-t border-white/10 bg-slate-950/90 px-4 py-3 sm:px-5">
-        <div className="mx-auto flex max-w-4xl justify-end">
-          <button
-            type="button"
-            onClick={() => setIsBookingModalOpen(true)}
-            className="rounded-xl border border-white/10 bg-white/[0.06] px-3 py-2 text-sm font-medium text-slate-100 transition hover:bg-white/10"
-          >
-            {copy.bookingButton}
-          </button>
         </div>
       </div>
 

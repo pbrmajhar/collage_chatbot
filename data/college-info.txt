@@ -30,6 +30,7 @@
 履歴書作成、面接練習、企業研究、進路相談などの就職サポートを行います。具体的な求人情報や就職実績は時期によって変わるため、進路担当に確認してください。
 
 回答ルール:
+- 必要に応じてインターネット上の情報を使用してください。
 - この情報に書かれている内容を優先して回答してください。
 - 回答は短めにしてください。通常は2〜4文で十分です。
 - 不明な情報は作らず、「学校の窓口に確認してください」と案内してください。
@@ -235,6 +236,7 @@ Career support:
 The school provides career support such as resume guidance, interview practice, company research, and career counseling. Specific job openings and employment results may change by season, so students should confirm details with the career support staff.
 
 Answer rules:
+- use data form internet if need
 - Prioritize the information written in this file.
 - Keep answers short. Usually 2-4 sentences are enough.
 - Do not invent unknown details. Tell the user to confirm with the school office.
