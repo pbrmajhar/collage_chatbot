@@ -17,28 +17,28 @@ import { getAiServiceNotice } from "@/lib/ai-service-status";
 
 const adminCards = [
   {
-    description: "Add and edit Japanese or English information for the bot.",
+    description: "ボットが使う日本語・英語の学校情報を追加・編集します。",
     href: "/admin/college-info",
     icon: BookOpenText,
-    title: "College Info",
+    title: "学校情報",
   },
   {
-    description: "Create booking times with from and to time ranges.",
+    description: "予約できる日時と開始・終了時間を作成します。",
     href: "/admin/time-slots",
     icon: Clock3,
-    title: "Time Slots",
+    title: "予約枠",
   },
   {
-    description: "View, edit, comment on, and delete student bookings.",
+    description: "学生の予約を確認・編集・コメント・削除します。",
     href: "/admin/bookings",
     icon: CalendarCheck,
-    title: "Bookings",
+    title: "予約一覧",
   },
   {
-    description: "Change the admin panel title and subtitle.",
+    description: "管理画面のタイトル、サブタイトル、表示設定を変更します。",
     href: "/admin/settings",
     icon: Settings,
-    title: "Settings",
+    title: "設定",
   },
   {
     description: "管理者ログイン用のユーザーを追加・編集します。",
