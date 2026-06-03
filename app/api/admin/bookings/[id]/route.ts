@@ -6,6 +6,7 @@ import { getPrisma } from "@/lib/prisma";
 
 type UpdateBookingBody = {
   comment?: unknown;
+  isRead?: unknown;
   language?: unknown;
   slotId?: unknown;
   status?: unknown;
@@ -54,6 +55,7 @@ export async function PATCH(request: Request, context: RouteContext) {
   const studentEmail = getString(body.studentEmail);
   const studentPhone = getString(body.studentPhone);
   const comment = getString(body.comment);
+  const isRead = typeof body.isRead === "boolean" ? body.isRead : false;
   const language = getString(body.language) || "ja";
   const status = getString(body.status) || "confirmed";
 
@@ -84,9 +86,17 @@ export async function PATCH(request: Request, context: RouteContext) {
         id,
       },
     });
+    await prisma.$executeRaw`
+      UPDATE "Booking"
+      SET "isRead" = ${isRead}
+      WHERE "id" = ${id}
+    `;
 
     return NextResponse.json({
-      booking: toAdminBooking(booking),
+      booking: toAdminBooking({
+        ...booking,
+        isRead,
+      }),
     });
   } catch (error) {
     const message = isKnownUniqueConflict(error)

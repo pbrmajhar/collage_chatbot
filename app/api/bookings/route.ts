@@ -85,6 +85,11 @@ export async function POST(request: Request) {
           studentPhone,
         },
       });
+      await tx.$executeRaw`
+        UPDATE "Booking"
+        SET "isRead" = false
+        WHERE "id" = ${booking.id}
+      `;
 
       return {
         booking,

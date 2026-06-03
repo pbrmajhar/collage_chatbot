@@ -1,5 +1,6 @@
 import NextAuth from "next-auth";
 import Credentials from "next-auth/providers/credentials";
+import { authorizeAdminUser } from "@/lib/admin-users";
 
 export const { auth, handlers, signIn, signOut } = NextAuth({
   secret: process.env.AUTH_SECRET,
@@ -12,22 +13,12 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
       async authorize(credentials) {
         const email = String(credentials?.email ?? "");
         const password = String(credentials?.password ?? "");
-        const adminEmail = process.env.ADMIN_EMAIL;
-        const adminPassword = process.env.ADMIN_PASSWORD;
 
-        if (!adminEmail || !adminPassword) {
+        if (!email || !password) {
           return null;
         }
 
-        if (email === adminEmail && password === adminPassword) {
-          return {
-            id: "admin",
-            email: adminEmail,
-            name: "Admin",
-          };
-        }
-
-        return null;
+        return authorizeAdminUser(email, password);
       },
     }),
   ],

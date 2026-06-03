@@ -8,7 +8,23 @@ import {
 import { isDatabaseConfigured } from "@/lib/database";
 
 type UpdateSettingsBody = {
+  authSecret?: unknown;
+  authUrl?: unknown;
+  bookingTriggerKeywords?: unknown;
+  chatAccentColor?: unknown;
+  chatAccentTextColor?: unknown;
+  chatAssistantBubbleColor?: unknown;
+  chatAssistantTextColor?: unknown;
   chatBackgroundColor?: unknown;
+  chatHeaderBackgroundColor?: unknown;
+  chatInputBackgroundColor?: unknown;
+  chatInputPanelColor?: unknown;
+  chatMutedTextColor?: unknown;
+  chatUserBubbleColor?: unknown;
+  chatUserTextColor?: unknown;
+  databaseUrl?: unknown;
+  directUrl?: unknown;
+  geminiApiKey?: unknown;
   mainBackgroundColor?: unknown;
   subtitle?: unknown;
   title?: unknown;
@@ -41,6 +57,10 @@ function getUrl(value: unknown) {
   } catch {
     return "";
   }
+}
+
+function getText(value: unknown) {
+  return typeof value === "string" ? value.trim() : "";
 }
 
 export async function GET() {
@@ -88,6 +108,15 @@ export async function PATCH(request: Request) {
       typeof body.subtitle === "string"
         ? body.subtitle.trim()
         : defaultAdminSettings.subtitle;
+    const bookingTriggerKeywords =
+      typeof body.bookingTriggerKeywords === "string"
+        ? body.bookingTriggerKeywords.trim()
+        : defaultAdminSettings.bookingTriggerKeywords;
+    const authSecret = getText(body.authSecret);
+    const authUrl = getUrl(body.authUrl);
+    const databaseUrl = getText(body.databaseUrl);
+    const directUrl = getText(body.directUrl);
+    const geminiApiKey = getText(body.geminiApiKey);
     const mainBackgroundColor = getColor(
       body.mainBackgroundColor,
       defaultAdminSettings.mainBackgroundColor,
@@ -95,6 +124,46 @@ export async function PATCH(request: Request) {
     const chatBackgroundColor = getColor(
       body.chatBackgroundColor,
       defaultAdminSettings.chatBackgroundColor,
+    );
+    const chatAccentColor = getColor(
+      body.chatAccentColor,
+      defaultAdminSettings.chatAccentColor,
+    );
+    const chatAccentTextColor = getColor(
+      body.chatAccentTextColor,
+      defaultAdminSettings.chatAccentTextColor,
+    );
+    const chatAssistantBubbleColor = getColor(
+      body.chatAssistantBubbleColor,
+      defaultAdminSettings.chatAssistantBubbleColor,
+    );
+    const chatAssistantTextColor = getColor(
+      body.chatAssistantTextColor,
+      defaultAdminSettings.chatAssistantTextColor,
+    );
+    const chatHeaderBackgroundColor = getColor(
+      body.chatHeaderBackgroundColor,
+      defaultAdminSettings.chatHeaderBackgroundColor,
+    );
+    const chatInputBackgroundColor = getColor(
+      body.chatInputBackgroundColor,
+      defaultAdminSettings.chatInputBackgroundColor,
+    );
+    const chatInputPanelColor = getColor(
+      body.chatInputPanelColor,
+      defaultAdminSettings.chatInputPanelColor,
+    );
+    const chatMutedTextColor = getColor(
+      body.chatMutedTextColor,
+      defaultAdminSettings.chatMutedTextColor,
+    );
+    const chatUserBubbleColor = getColor(
+      body.chatUserBubbleColor,
+      defaultAdminSettings.chatUserBubbleColor,
+    );
+    const chatUserTextColor = getColor(
+      body.chatUserTextColor,
+      defaultAdminSettings.chatUserTextColor,
     );
     const widgetBubbleIconUrl = getUrl(body.widgetBubbleIconUrl);
 
@@ -107,7 +176,23 @@ export async function PATCH(request: Request) {
 
     return NextResponse.json({
       settings: await updateAdminSettings({
+        authSecret,
+        authUrl,
+        bookingTriggerKeywords,
+        chatAccentColor,
+        chatAccentTextColor,
+        chatAssistantBubbleColor,
+        chatAssistantTextColor,
         chatBackgroundColor,
+        chatHeaderBackgroundColor,
+        chatInputBackgroundColor,
+        chatInputPanelColor,
+        chatMutedTextColor,
+        chatUserBubbleColor,
+        chatUserTextColor,
+        databaseUrl,
+        directUrl,
+        geminiApiKey,
         mainBackgroundColor,
         subtitle,
         title,

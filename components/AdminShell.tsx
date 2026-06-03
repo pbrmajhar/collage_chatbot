@@ -1,9 +1,25 @@
-import { BookOpenText, CalendarCheck, Clock3, Settings } from "lucide-react";
+import {
+  Bell,
+  BookOpenText,
+  CalendarCheck,
+  Clock3,
+  Settings,
+  UserRound,
+} from "lucide-react";
+import { unstable_noStore as noStore } from "next/cache";
 import Link from "next/link";
+import { AdminToastProvider } from "@/components/AdminToastProvider";
 import { SignOutButton } from "@/components/SignOutButton";
+import { getUnreadBookingCount } from "@/lib/booking-notifications";
 
 type AdminShellProps = {
-  active: "bookings" | "home" | "college-info" | "settings" | "time-slots";
+  active:
+    | "bookings"
+    | "home"
+    | "college-info"
+    | "settings"
+    | "time-slots"
+    | "users";
   children: React.ReactNode;
   description: string;
   title: string;
@@ -34,14 +50,23 @@ const navItems = [
     id: "settings",
     label: "設定",
   },
+  {
+    href: "/admin/users",
+    icon: UserRound,
+    id: "users",
+    label: "ユーザー",
+  },
 ] as const;
 
-export function AdminShell({
+export async function AdminShell({
   active,
   children,
   description,
   title,
 }: AdminShellProps) {
+  noStore();
+  const unreadBookingCount = await getUnreadBookingCount();
+
   return (
     <main className="h-screen overflow-hidden px-4 py-6 sm:px-6 lg:px-8">
       <div
@@ -56,7 +81,22 @@ export function AdminShell({
               </h1>
               <p className="mt-1 text-sm text-slate-300">{description}</p>
             </div>
-            <SignOutButton />
+            <div className="flex items-center gap-2">
+              <Link
+                href="/admin/bookings"
+                className="relative inline-flex h-10 w-10 items-center justify-center rounded-xl border border-white/10 bg-white/[0.06] text-slate-100 transition hover:bg-white/10"
+                aria-label="新規予約"
+                title="新規予約"
+              >
+                <Bell aria-hidden="true" className="h-4 w-4 text-teal-300" />
+                {unreadBookingCount > 0 && (
+                  <span className="absolute -right-1.5 -top-1.5 flex h-5 min-w-5 items-center justify-center rounded-full bg-red-400 px-1 text-[11px] font-bold text-white">
+                    {unreadBookingCount > 99 ? "99+" : unreadBookingCount}
+                  </span>
+                )}
+              </Link>
+              <SignOutButton />
+            </div>
           </div>
         </header>
 
@@ -85,7 +125,7 @@ export function AdminShell({
           })}
         </nav>
 
-        {children}
+        <AdminToastProvider>{children}</AdminToastProvider>
       </div>
     </main>
   );

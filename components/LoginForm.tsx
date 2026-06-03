@@ -24,7 +24,7 @@ export function LoginForm() {
     setIsLoading(false);
 
     if (result?.error) {
-      setError("Invalid admin email or password.");
+      setError("メールアドレスまたはパスワードが正しくありません。");
       return;
     }
 
@@ -34,7 +34,9 @@ export function LoginForm() {
   return (
     <form className="space-y-4" onSubmit={handleSubmit}>
       <label className="block">
-        <span className="text-sm font-medium text-slate-200">Email</span>
+        <span className="text-sm font-medium text-slate-200">
+          メールアドレス
+        </span>
         <input
           type="email"
           value={email}
@@ -46,7 +48,9 @@ export function LoginForm() {
       </label>
 
       <label className="block">
-        <span className="text-sm font-medium text-slate-200">Password</span>
+        <span className="text-sm font-medium text-slate-200">
+          パスワード
+        </span>
         <input
           type="password"
           value={password}
@@ -69,7 +73,7 @@ export function LoginForm() {
         className="flex w-full items-center justify-center gap-2 rounded-xl bg-teal-400 px-4 py-3 text-sm font-semibold text-slate-950 transition hover:bg-teal-300 disabled:cursor-not-allowed disabled:bg-slate-700 disabled:text-slate-400"
       >
         <LogIn aria-hidden="true" className="h-4 w-4" />
-        {isLoading ? "Signing in..." : "Sign in"}
+        {isLoading ? "ログイン中..." : "ログイン"}
       </button>
     </form>
   );

@@ -4,6 +4,7 @@ import { readFile } from "node:fs/promises";
 import path from "node:path";
 import { SlotStatus } from "@prisma/client";
 import { formatCollegeInfoForPrompt, toContentLanguage } from "@/lib/college-info";
+import { getAdminSettings } from "@/lib/admin-settings";
 import { saveAiServiceNotice } from "@/lib/ai-service-status";
 import { isDatabaseConfigured } from "@/lib/database";
 import { getPrisma } from "@/lib/prisma";
@@ -73,6 +74,25 @@ function isRateLimitError(error: unknown) {
         : JSON.stringify(error);
 
   return /rate limit|quota|billing|429|resource_exhausted/i.test(message);
+}
+
+async function getGeminiApiKey() {
+  if (process.env.GEMINI_API_KEY) {
+    return process.env.GEMINI_API_KEY;
+  }
+
+  if (!isDatabaseConfigured()) {
+    return "";
+  }
+
+  try {
+    const settings = await getAdminSettings();
+
+    return settings.geminiApiKey;
+  } catch (error) {
+    console.error("Gemini API key settings lookup error:", error);
+    return "";
+  }
 }
 
 async function getCollegeInfo(language: Language) {
@@ -174,7 +194,9 @@ export async function POST(request: Request) {
     const language = getLanguage(body.language);
     copy = apiCopy[language];
 
-    if (!process.env.GEMINI_API_KEY) {
+    const geminiApiKey = await getGeminiApiKey();
+
+    if (!geminiApiKey) {
       return NextResponse.json(
         { error: copy.apiKeyMissing },
         { status: 500 },
@@ -191,7 +213,7 @@ export async function POST(request: Request) {
     }
 
     const ai = new GoogleGenAI({
-      apiKey: process.env.GEMINI_API_KEY!,
+      apiKey: geminiApiKey,
     });
     const collegeInfo = await getCollegeInfo(language);
     const openSlotInfo = await getOpenSlotInfo();

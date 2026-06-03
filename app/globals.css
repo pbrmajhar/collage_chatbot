@@ -5,6 +5,16 @@
 :root {
   --app-main-bg: #151515;
   --app-panel-bg: #020617;
+  --chat-accent: #2dd4bf;
+  --chat-accent-text: #020617;
+  --chat-assistant-bubble: #1f2937;
+  --chat-assistant-text: #f1f5f9;
+  --chat-header-bg: #020617;
+  --chat-input-bg: #0f172a;
+  --chat-input-panel-bg: #020617;
+  --chat-muted-text: #cbd5e1;
+  --chat-user-bubble: #2dd4bf;
+  --chat-user-text: #020617;
   color-scheme: dark;
 }
 

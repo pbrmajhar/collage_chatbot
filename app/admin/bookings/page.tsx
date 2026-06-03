@@ -3,7 +3,7 @@ import { auth } from "@/auth";
 import { AdminBookingManager } from "@/components/AdminBookingManager";
 import { AdminShell } from "@/components/AdminShell";
 import { getAdminSettings } from "@/lib/admin-settings";
-import { toAdminBooking } from "@/lib/bookings";
+import { toAdminBooking, withBookingReadStatuses } from "@/lib/bookings";
 import { isDatabaseConfigured } from "@/lib/database";
 import { getPrisma } from "@/lib/prisma";
 import { toAdminSlot } from "@/lib/slots";
@@ -16,7 +16,8 @@ export default async function AdminBookingsPage() {
   }
 
   const prisma = isDatabaseConfigured() ? getPrisma() : null;
-  const [bookings, slots, settings] = await Promise.all([
+
+  const [bookingsWithoutReadStatus, slots, settings] = await Promise.all([
     prisma
       ? prisma.booking.findMany({
           include: {
@@ -36,6 +37,9 @@ export default async function AdminBookingsPage() {
       : [],
     getAdminSettings(),
   ]);
+  const bookings = prisma
+    ? await withBookingReadStatuses(prisma, bookingsWithoutReadStatus)
+    : bookingsWithoutReadStatus;
 
   return (
     <AdminShell

@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/auth";
-import { toAdminBooking } from "@/lib/bookings";
+import { toAdminBooking, withBookingReadStatuses } from "@/lib/bookings";
 import { isDatabaseConfigured } from "@/lib/database";
 import { getPrisma } from "@/lib/prisma";
 
@@ -19,7 +19,7 @@ export async function GET() {
   }
 
   const prisma = getPrisma();
-  const bookings = await prisma.booking.findMany({
+  const bookingsWithoutReadStatus = await prisma.booking.findMany({
     include: {
       slot: true,
     },
@@ -27,6 +27,10 @@ export async function GET() {
       createdAt: "desc",
     },
   });
+  const bookings = await withBookingReadStatuses(
+    prisma,
+    bookingsWithoutReadStatus,
+  );
 
   return NextResponse.json({
     bookings: bookings.map(toAdminBooking),

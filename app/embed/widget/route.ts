@@ -12,17 +12,8 @@ function createWidgetScript(defaultIconUrl: string) {
   var script = document.currentScript;
   var origin = new URL(script.src).origin;
   var lang = script.getAttribute("data-lang") || "ja";
-  var title = script.getAttribute("data-title") || "College Information AI Chatbot";
   var iconUrl = script.getAttribute("data-icon-url") || ${JSON.stringify(defaultIconUrl)};
   var chatUrl = origin + "/embed/chat?lang=" + encodeURIComponent(lang);
-
-  function escapeAttribute(value) {
-    return String(value).replace(/"/g, "&quot;");
-  }
-
-  function escapeHtml(value) {
-    return String(value).replace(/</g, "&lt;");
-  }
 
   var host = document.createElement("div");
   host.id = "college-info-chatbot-widget";
@@ -40,22 +31,29 @@ function createWidgetScript(defaultIconUrl: string) {
     + '.button:focus{outline:3px solid rgba(45,212,191,.35);outline-offset:3px}'
     + '.icon{display:none;height:100%;width:100%;object-fit:cover}'
     + '.icon.visible{display:block}'
-    + '.button-text{display:block}'
-    + '.button-text.hidden{display:none}'
+    + '.fallback-icon{height:28px;width:28px;display:block}'
+    + '.fallback-icon.hidden{display:none}'
+    + '.close-icon{display:none;font:700 18px/1 Inter,ui-sans-serif,system-ui,sans-serif}'
+    + '.close-icon.visible{display:block}'
     + '@media (max-width:520px){.panel{right:10px;left:10px;bottom:84px;width:auto;height:min(620px,calc(100vh - 104px));border-radius:16px}.button{right:16px;bottom:16px}}'
     + '</style>'
     + '<div class="panel" id="panel" aria-hidden="true">'
-    + '<iframe class="frame" id="frame" title="' + escapeAttribute(title) + '" src="' + chatUrl + '"></iframe>'
+    + '<iframe class="frame" id="frame" title="Chatbot" src="' + chatUrl + '"></iframe>'
     + '</div>'
     + '<button class="button" id="button" type="button" aria-expanded="false" aria-controls="panel" aria-label="Open chat">'
     + '<img class="icon" id="icon" alt="" />'
-    + '<span class="button-text" id="buttonText">AI</span>'
+    + '<svg class="fallback-icon" id="fallbackIcon" viewBox="0 0 24 24" fill="none" aria-hidden="true">'
+    + '<path d="M21 11.5a8.5 8.5 0 0 1-9.88 8.4L5 21l1.1-4.18A8.5 8.5 0 1 1 21 11.5Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>'
+    + '<path d="M8 11h8M8 14h5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>'
+    + '</svg>'
+    + '<span class="close-icon" id="closeIcon">x</span>'
     + '</button>';
 
   var panel = shadow.getElementById("panel");
   var button = shadow.getElementById("button");
   var icon = shadow.getElementById("icon");
-  var buttonText = shadow.getElementById("buttonText");
+  var fallbackIcon = shadow.getElementById("fallbackIcon");
+  var closeIcon = shadow.getElementById("closeIcon");
   var isOpen = false;
 
   if (iconUrl) {
@@ -63,12 +61,12 @@ function createWidgetScript(defaultIconUrl: string) {
     icon.addEventListener("load", function () {
       if (!isOpen) {
         icon.classList.add("visible");
-        buttonText.classList.add("hidden");
+        fallbackIcon.classList.add("hidden");
       }
     });
     icon.addEventListener("error", function () {
       icon.classList.remove("visible");
-      buttonText.classList.remove("hidden");
+      fallbackIcon.classList.remove("hidden");
     });
   }
 
@@ -81,16 +79,19 @@ function createWidgetScript(defaultIconUrl: string) {
 
     if (isOpen) {
       icon.classList.remove("visible");
-      buttonText.classList.remove("hidden");
-      buttonText.textContent = "x";
+      fallbackIcon.classList.add("hidden");
+      closeIcon.classList.add("visible");
       return;
     }
 
-    buttonText.textContent = "AI";
+    closeIcon.classList.remove("visible");
     if (icon.complete && icon.naturalWidth > 0) {
       icon.classList.add("visible");
-      buttonText.classList.add("hidden");
+      fallbackIcon.classList.add("hidden");
+      return;
     }
+
+    fallbackIcon.classList.remove("hidden");
   }
 
   button.addEventListener("click", function () {

@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 import { CalendarCheck, Pencil, Save, Trash2, X } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useAdminToast } from "@/components/AdminToastProvider";
 import type { AdminBooking } from "@/lib/bookings";
 import type { AdminSlot } from "@/lib/slots";
 
@@ -13,6 +15,7 @@ type AdminBookingManagerProps = {
 
 type EditableBooking = {
   comment: string;
+  isRead: boolean;
   language: string;
   slotId: string;
   status: AdminBooking["status"];
@@ -35,6 +38,7 @@ const statusLabels: Record<AdminBooking["status"], string> = {
 function toEditableBooking(booking: AdminBooking): EditableBooking {
   return {
     comment: booking.comment,
+    isRead: booking.isRead,
     language: booking.language,
     slotId: booking.slotId,
     status: booking.status,
@@ -67,15 +71,16 @@ export function AdminBookingManager({
   initialSlots,
   isDatabaseReady,
 }: AdminBookingManagerProps) {
+  const router = useRouter();
+  const { showToast } = useAdminToast();
   const [bookings, setBookings] = useState(initialBookings);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [draft, setDraft] = useState<EditableBooking | null>(null);
-  const [message, setMessage] = useState<string | null>(null);
   const [savingId, setSavingId] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const unreadBookingCount = bookings.filter((booking) => !booking.isRead).length;
 
   function startEditing(booking: AdminBooking) {
-    setMessage(null);
     setEditingId(booking.id);
     setDraft(toEditableBooking(booking));
   }
@@ -100,7 +105,6 @@ export function AdminBookingManager({
     }
 
     setSavingId(bookingId);
-    setMessage(null);
 
     try {
       const response = await fetch(`/api/admin/bookings/${bookingId}`, {
@@ -123,10 +127,12 @@ export function AdminBookingManager({
       );
       setEditingId(null);
       setDraft(null);
-      setMessage("予約を更新しました。");
+      showToast("予約を更新しました。");
+      router.refresh();
     } catch (error) {
-      setMessage(
-        error instanceof Error ? error.message : "Could not update booking.",
+      showToast(
+        error instanceof Error ? error.message : "予約を更新できませんでした。",
+        "error",
       );
     } finally {
       setSavingId(null);
@@ -141,7 +147,6 @@ export function AdminBookingManager({
     }
 
     setDeletingId(bookingId);
-    setMessage(null);
 
     try {
       const response = await fetch(`/api/admin/bookings/${bookingId}`, {
@@ -159,10 +164,12 @@ export function AdminBookingManager({
       if (editingId === bookingId) {
         cancelEditing();
       }
-      setMessage("予約を削除しました。");
+      showToast("予約を削除しました。");
+      router.refresh();
     } catch (error) {
-      setMessage(
-        error instanceof Error ? error.message : "Could not delete booking.",
+      showToast(
+        error instanceof Error ? error.message : "予約を削除できませんでした。",
+        "error",
       );
     } finally {
       setDeletingId(null);
@@ -184,9 +191,14 @@ export function AdminBookingManager({
             学生情報、予約枠、ステータス、コメントを管理できます。
           </p>
         </div>
-        <span className="rounded-full border border-white/10 bg-white/[0.06] px-3 py-1 text-xs font-semibold text-slate-200">
-          {bookings.length}件
-        </span>
+        <div className="flex flex-wrap gap-2">
+          <span className="rounded-full border border-white/10 bg-white/[0.06] px-3 py-1 text-xs font-semibold text-slate-200">
+            全{bookings.length}件
+          </span>
+          <span className="rounded-full border border-teal-300/30 bg-teal-400/10 px-3 py-1 text-xs font-semibold text-teal-100">
+            未読{unreadBookingCount}件
+          </span>
+        </div>
       </div>
 
       {!isDatabaseReady && (
@@ -195,97 +207,113 @@ export function AdminBookingManager({
         </p>
       )}
 
-      {message && (
-        <p className="mb-4 rounded-xl border border-white/10 bg-white/[0.06] px-3 py-2 text-sm text-slate-200">
-          {message}
-        </p>
-      )}
-
-      <div className="grid gap-2 md:grid-cols-2 xl:grid-cols-3">
-        {bookings.map((booking) => {
-          return (
-            <article
-              key={booking.id}
-              className="flex min-h-48 flex-col rounded-xl border border-white/10 bg-white/[0.06] p-3 shadow-lg shadow-black/10"
-            >
-              <div className="flex items-start justify-between gap-3">
-                <div className="min-w-0">
-                  <h2 className="truncate text-sm font-semibold text-white">
-                    {booking.studentName}
-                  </h2>
-                  <p className="mt-0.5 text-xs text-slate-300">
-                    {booking.language === "en" ? "English" : "日本語"} ・{" "}
-                    {new Date(booking.createdAt).toLocaleString("ja-JP")}
-                  </p>
-                </div>
-                <span
-                  className={`rounded-full px-2.5 py-1 text-xs font-semibold ${
-                    booking.status === "confirmed"
-                      ? "bg-teal-400/15 text-teal-200"
-                      : booking.status === "pending"
-                        ? "bg-amber-300/15 text-amber-100"
-                        : "bg-red-400/15 text-red-100"
+      <div className="overflow-hidden rounded-2xl border border-white/10 bg-white/[0.04]">
+        <div className="overflow-x-auto">
+          <table className="min-w-[980px] w-full text-left text-xs">
+            <thead className="sticky top-0 bg-slate-900 text-[11px] font-semibold uppercase tracking-wide text-slate-400">
+              <tr>
+                <th className="px-3 py-3">状態</th>
+                <th className="px-3 py-3">学生</th>
+                <th className="px-3 py-3">予約枠</th>
+                <th className="px-3 py-3">日時</th>
+                <th className="px-3 py-3">連絡先</th>
+                <th className="px-3 py-3">ステータス</th>
+                <th className="px-3 py-3">コメント</th>
+                <th className="px-3 py-3 text-right">操作</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-white/10">
+              {bookings.map((booking) => (
+                <tr
+                  key={booking.id}
+                  className={`transition hover:bg-white/[0.04] ${
+                    booking.isRead ? "bg-transparent" : "bg-teal-400/[0.08]"
                   }`}
                 >
-                  {statusLabels[booking.status]}
-                </span>
-              </div>
-
-              <div className="mt-3 flex-1 space-y-2 text-xs">
-                <div>
-                  <span className="text-slate-500">予約枠</span>
-                  <p className="mt-0.5 truncate font-semibold text-white">
-                    {booking.slot.topic}
-                  </p>
-                  <p className="text-slate-300">
-                    {booking.slot.date} {booking.slot.timeRange}
-                  </p>
-                </div>
-
-                <div className="grid gap-1 text-slate-300">
-                  <p className="truncate">
-                    <span className="text-slate-500">メール:</span>{" "}
-                    {booking.studentEmail}
-                  </p>
-                  <p>
-                    <span className="text-slate-500">電話:</span>{" "}
-                    {booking.studentPhone}
-                  </p>
-                </div>
-
-                {booking.comment && (
-                  <p className="line-clamp-2 rounded-lg bg-slate-950/45 px-2 py-1.5 leading-5 text-slate-300">
-                    {booking.comment}
-                  </p>
-                )}
-              </div>
-
-              <div className="mt-3 flex flex-wrap gap-2 border-t border-white/10 pt-2">
-                <button
-                  type="button"
-                  onClick={() => startEditing(booking)}
-                  className="inline-flex items-center gap-1.5 rounded-lg border border-white/10 bg-white/[0.06] px-2.5 py-1.5 text-xs font-semibold text-slate-100 transition hover:bg-white/10"
-                >
-                  <Pencil aria-hidden="true" className="h-3.5 w-3.5" />
-                  編集
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => deleteBooking(booking.id)}
-                  disabled={deletingId === booking.id}
-                  className="inline-flex items-center gap-1.5 rounded-lg border border-red-300/20 bg-red-400/10 px-2.5 py-1.5 text-xs font-semibold text-red-100 transition hover:bg-red-400/20 disabled:cursor-not-allowed disabled:opacity-60"
-                >
-                  <Trash2 aria-hidden="true" className="h-3.5 w-3.5" />
-                  {deletingId === booking.id ? "削除中..." : "削除"}
-                </button>
-              </div>
-            </article>
-          );
-        })}
+                  <td className="whitespace-nowrap px-3 py-2 align-top">
+                    {booking.isRead ? (
+                      <span className="rounded-full bg-slate-500/20 px-2 py-1 font-semibold text-slate-300">
+                        既読
+                      </span>
+                    ) : (
+                      <span className="rounded-full bg-teal-400 px-2 py-1 font-bold text-slate-950">
+                        未読
+                      </span>
+                    )}
+                  </td>
+                  <td className="px-3 py-2 align-top">
+                    <p className="max-w-36 truncate font-semibold text-white">
+                      {booking.studentName}
+                    </p>
+                    <p className="mt-0.5 text-slate-400">
+                      {booking.language === "en" ? "English" : "日本語"}
+                    </p>
+                  </td>
+                  <td className="px-3 py-2 align-top">
+                    <p className="max-w-44 truncate font-semibold text-white">
+                      {booking.slot.topic}
+                    </p>
+                    <p className="mt-0.5 text-slate-400">
+                      {new Date(booking.createdAt).toLocaleString("ja-JP")}
+                    </p>
+                  </td>
+                  <td className="whitespace-nowrap px-3 py-2 align-top text-slate-300">
+                    <p>{booking.slot.date}</p>
+                    <p className="mt-0.5">{booking.slot.timeRange}</p>
+                  </td>
+                  <td className="px-3 py-2 align-top text-slate-300">
+                    <p className="max-w-44 truncate">{booking.studentEmail}</p>
+                    <p className="mt-0.5">{booking.studentPhone}</p>
+                  </td>
+                  <td className="whitespace-nowrap px-3 py-2 align-top">
+                    <span
+                      className={`rounded-full px-2 py-1 font-semibold ${
+                        booking.status === "confirmed"
+                          ? "bg-teal-400/15 text-teal-200"
+                          : booking.status === "pending"
+                            ? "bg-amber-300/15 text-amber-100"
+                            : "bg-red-400/15 text-red-100"
+                      }`}
+                    >
+                      {statusLabels[booking.status]}
+                    </span>
+                  </td>
+                  <td className="px-3 py-2 align-top text-slate-300">
+                    <p className="line-clamp-2 max-w-44">
+                      {booking.comment || "未入力"}
+                    </p>
+                  </td>
+                  <td className="px-3 py-2 align-top">
+                    <div className="flex justify-end gap-1.5">
+                      <button
+                        type="button"
+                        onClick={() => startEditing(booking)}
+                        className="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-white/10 bg-white/[0.06] text-slate-100 transition hover:bg-white/10"
+                        aria-label="編集"
+                        title="編集"
+                      >
+                        <Pencil aria-hidden="true" className="h-3.5 w-3.5" />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => deleteBooking(booking.id)}
+                        disabled={deletingId === booking.id}
+                        className="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-red-300/20 bg-red-400/10 text-red-100 transition hover:bg-red-400/20 disabled:cursor-not-allowed disabled:opacity-60"
+                        aria-label="削除"
+                        title="削除"
+                      >
+                        <Trash2 aria-hidden="true" className="h-3.5 w-3.5" />
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
 
         {bookings.length === 0 && (
-          <div className="rounded-2xl border border-white/10 bg-white/[0.06] px-4 py-8 text-center text-sm text-slate-400">
+          <div className="px-4 py-8 text-center text-sm text-slate-400">
             予約はまだありません。
           </div>
         )}
@@ -293,12 +321,11 @@ export function AdminBookingManager({
 
       {editingId && draft && (
         <div
-          className="fixed inset-0 z-50 flex items-end justify-center bg-black/60 px-4 py-4 backdrop-blur-sm sm:items-center"
+          className="fixed inset-x-4 bottom-4 z-50 mx-auto max-h-[90vh] w-auto max-w-2xl overflow-y-auto rounded-2xl border border-white/10 bg-slate-950 p-4 shadow-2xl shadow-black/40 sm:bottom-auto sm:top-1/2 sm:-translate-y-1/2"
           role="dialog"
           aria-modal="true"
           aria-labelledby="booking-edit-title"
         >
-          <div className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-2xl border border-white/10 bg-slate-950 p-4 shadow-2xl shadow-black/40">
             <div className="mb-4 flex items-start justify-between gap-3">
               <div>
                 <h2
@@ -420,6 +447,22 @@ export function AdminBookingManager({
                 </select>
               </label>
 
+              <label className="block">
+                <span className="text-xs font-medium uppercase tracking-wide text-slate-400">
+                  既読状態
+                </span>
+                <select
+                  value={draft.isRead ? "read" : "unread"}
+                  onChange={(event) =>
+                    updateDraft("isRead", event.target.value === "read")
+                  }
+                  className="mt-1 w-full rounded-lg border border-white/10 bg-slate-900 px-3 py-2 text-sm text-white outline-none focus:border-teal-300/70"
+                >
+                  <option value="unread">未読</option>
+                  <option value="read">既読</option>
+                </select>
+              </label>
+
               <label className="block sm:col-span-2">
                 <span className="text-xs font-medium uppercase tracking-wide text-slate-400">
                   コメント
@@ -454,7 +497,6 @@ export function AdminBookingManager({
                 {savingId === editingId ? "保存中..." : "保存"}
               </button>
             </div>
-          </div>
         </div>
       )}
     </section>

@@ -31,6 +31,16 @@ async function ThemedDocument({
           {
             "--app-main-bg": settings.mainBackgroundColor,
             "--app-panel-bg": settings.chatBackgroundColor,
+            "--chat-accent": settings.chatAccentColor,
+            "--chat-accent-text": settings.chatAccentTextColor,
+            "--chat-assistant-bubble": settings.chatAssistantBubbleColor,
+            "--chat-assistant-text": settings.chatAssistantTextColor,
+            "--chat-header-bg": settings.chatHeaderBackgroundColor,
+            "--chat-input-bg": settings.chatInputBackgroundColor,
+            "--chat-input-panel-bg": settings.chatInputPanelColor,
+            "--chat-muted-text": settings.chatMutedTextColor,
+            "--chat-user-bubble": settings.chatUserBubbleColor,
+            "--chat-user-text": settings.chatUserTextColor,
           } as CSSProperties
         }
       >

@@ -11,6 +11,7 @@ import {
   Users,
   X,
 } from "lucide-react";
+import { useAdminToast } from "@/components/AdminToastProvider";
 import type { AdminSlot } from "@/lib/slots";
 
 type AdminSlotManagerProps = {
@@ -63,6 +64,7 @@ export function AdminSlotManager({
   initialSlots,
   isDatabaseReady,
 }: AdminSlotManagerProps) {
+  const { showToast } = useAdminToast();
   const [slots, setSlots] = useState<AdminSlot[]>(initialSlots);
   const [date, setDate] = useState("");
   const [fromTime, setFromTime] = useState("");
@@ -71,7 +73,6 @@ export function AdminSlotManager({
   const [editingId, setEditingId] = useState<string | null>(null);
   const [expandedPeopleId, setExpandedPeopleId] = useState<string | null>(null);
   const [draft, setDraft] = useState<EditableSlot | null>(null);
-  const [error, setError] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [savingId, setSavingId] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
@@ -84,7 +85,6 @@ export function AdminSlotManager({
     }
 
     setIsSaving(true);
-    setError(null);
 
     try {
       const response = await fetch("/api/admin/slots", {
@@ -105,11 +105,13 @@ export function AdminSlotManager({
       setFromTime("");
       setTopic("");
       setToTime("");
+      showToast("予約枠を追加しました。");
     } catch (caughtError) {
-      setError(
+      showToast(
         caughtError instanceof Error
           ? caughtError.message
-          : "Could not create slot.",
+          : "予約枠を追加できませんでした。",
+        "error",
       );
     } finally {
       setIsSaving(false);
@@ -117,7 +119,6 @@ export function AdminSlotManager({
   }
 
   function startEditing(slot: AdminSlot) {
-    setError(null);
     setEditingId(slot.id);
     setDraft(toEditableSlot(slot));
   }
@@ -142,7 +143,6 @@ export function AdminSlotManager({
     }
 
     setSavingId(slotId);
-    setError(null);
 
     try {
       const response = await fetch(`/api/admin/slots/${slotId}`, {
@@ -164,11 +164,13 @@ export function AdminSlotManager({
         ),
       );
       cancelEditing();
+      showToast("予約枠を更新しました。");
     } catch (caughtError) {
-      setError(
+      showToast(
         caughtError instanceof Error
           ? caughtError.message
-          : "Could not update slot.",
+          : "予約枠を更新できませんでした。",
+        "error",
       );
     } finally {
       setSavingId(null);
@@ -177,7 +179,10 @@ export function AdminSlotManager({
 
   async function deleteSlot(slot: AdminSlot) {
     if (slot.bookings.length > 0) {
-      setError("この予約枠には予約があります。先に予約を削除または移動してください。");
+      showToast(
+        "この予約枠には予約があります。先に予約を削除または移動してください。",
+        "error",
+      );
       return;
     }
 
@@ -188,7 +193,6 @@ export function AdminSlotManager({
     }
 
     setDeletingId(slot.id);
-    setError(null);
 
     try {
       const response = await fetch(`/api/admin/slots/${slot.id}`, {
@@ -203,11 +207,13 @@ export function AdminSlotManager({
       setSlots((currentSlots) =>
         currentSlots.filter((currentSlot) => currentSlot.id !== slot.id),
       );
+      showToast("予約枠を削除しました。");
     } catch (caughtError) {
-      setError(
+      showToast(
         caughtError instanceof Error
           ? caughtError.message
-          : "Could not delete slot.",
+          : "予約枠を削除できませんでした。",
+        "error",
       );
     } finally {
       setDeletingId(null);
@@ -298,18 +304,13 @@ export function AdminSlotManager({
               データベースがまだ設定されていません。
             </p>
           )}
-
-          {error && (
-            <p className="mt-3 rounded-xl border border-red-300/20 bg-red-400/10 px-3 py-2 text-sm text-red-100">
-              {error}
-            </p>
-          )}
         </form>
 
         <div className="space-y-3">
           {slots.map((slot) => {
             const isEditing = editingId === slot.id;
             const isExpanded = expandedPeopleId === slot.id;
+            const displayStatus = slot.isPast ? "inactive" : slot.status;
 
             return (
               <article
@@ -405,14 +406,16 @@ export function AdminSlotManager({
                     </span>
                     <span
                       className={`rounded-full px-2 py-1 text-center text-xs font-semibold ${
-                        slot.status === "open"
+                        displayStatus === "open"
                           ? "bg-teal-400/15 text-teal-200"
-                          : slot.status === "booked"
+                          : displayStatus === "booked"
                             ? "bg-amber-300/15 text-amber-100"
-                            : "bg-slate-500/20 text-slate-200"
+                            : displayStatus === "inactive"
+                              ? "bg-red-400/15 text-red-100"
+                              : "bg-slate-500/20 text-slate-200"
                       }`}
                     >
-                      {slot.status}
+                      {displayStatus}
                     </span>
                     <div className="flex shrink-0 flex-nowrap justify-start gap-1.5 lg:justify-end">
                       <button

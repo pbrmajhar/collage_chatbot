@@ -60,21 +60,10 @@ type ChatResponse = {
   error?: string;
 };
 
-function wantsBookingModal(message: string) {
+function wantsBookingModal(message: string, keywords: string[]) {
   const normalized = message.trim().toLowerCase();
 
-  return [
-    "yes",
-    "book",
-    "booking",
-    "reserve",
-    "reservation",
-    "ok",
-    "はい",
-    "予約",
-    "お願いします",
-    "お願い",
-  ].some((word) => normalized.includes(word));
+  return keywords.some((word) => normalized.includes(word.toLowerCase()));
 }
 
 function createAssistantMessage(content: string): Message {
@@ -85,10 +74,14 @@ function createAssistantMessage(content: string): Message {
 }
 
 type ChatWindowProps = {
+  bookingTriggerKeywords?: string[];
   initialLanguage?: Language;
 };
 
-export function ChatWindow({ initialLanguage = "ja" }: ChatWindowProps) {
+export function ChatWindow({
+  bookingTriggerKeywords = [],
+  initialLanguage = "ja",
+}: ChatWindowProps) {
   const [language, setLanguage] = useState<Language>(initialLanguage);
   const [messages, setMessages] = useState<Message[]>(() =>
     createInitialMessages(initialLanguage),
@@ -128,7 +121,7 @@ export function ChatWindow({ initialLanguage = "ja" }: ChatWindowProps) {
     setIsLoading(true);
     setError(null);
 
-    if (wantsBookingModal(trimmedInput)) {
+    if (wantsBookingModal(trimmedInput, bookingTriggerKeywords)) {
       setIsBookingModalOpen(true);
     }
 
@@ -182,10 +175,14 @@ export function ChatWindow({ initialLanguage = "ja" }: ChatWindowProps) {
 
   return (
     <section className="flex min-h-0 flex-1 flex-col">
-      <div className="flex shrink-0 justify-end border-b border-white/10 px-4 py-3 sm:px-7">
+      <div
+        className="flex shrink-0 justify-end border-b border-white/10 px-4 py-3 sm:px-7"
+        style={{ backgroundColor: "var(--chat-header-bg)" }}
+      >
         <div className="flex items-center gap-2">
           <div
-            className="inline-flex rounded-xl border border-white/10 bg-slate-900/80 p-1"
+            className="inline-flex rounded-xl border border-white/10 p-1"
+            style={{ backgroundColor: "var(--chat-input-bg)" }}
             role="group"
             aria-label={copy.languageLabel}
           >
@@ -195,11 +192,15 @@ export function ChatWindow({ initialLanguage = "ja" }: ChatWindowProps) {
                 type="button"
                 onClick={() => handleLanguageChange(option)}
                 disabled={isLoading || language === option}
-                className={`rounded-lg px-3 py-1.5 text-sm font-medium transition ${
-                  language === option
-                    ? "bg-teal-400 text-slate-950"
-                    : "text-slate-300 hover:bg-white/10 hover:text-white"
-                } disabled:cursor-default`}
+                className="rounded-lg px-3 py-1.5 text-sm font-medium transition hover:bg-white/10 disabled:cursor-default"
+                style={{
+                  backgroundColor:
+                    language === option ? "var(--chat-accent)" : "transparent",
+                  color:
+                    language === option
+                      ? "var(--chat-accent-text)"
+                      : "var(--chat-muted-text)",
+                }}
                 aria-pressed={language === option}
               >
                 {languageLabels[option]}
@@ -210,22 +211,35 @@ export function ChatWindow({ initialLanguage = "ja" }: ChatWindowProps) {
           <button
             type="button"
             onClick={() => setIsBookingModalOpen(true)}
-            className="rounded-xl border border-white/10 bg-white/[0.06] px-3 py-2 text-sm font-medium text-slate-100 transition hover:bg-white/10"
+            className="rounded-xl border border-white/10 bg-white/[0.06] px-3 py-2 text-sm font-medium transition hover:bg-white/10"
+            style={{ color: "var(--chat-assistant-text)" }}
           >
             {copy.bookingButton}
           </button>
         </div>
       </div>
 
-      <div className="min-h-0 flex-1 overflow-y-auto px-4 py-5 sm:px-7">
+      <div
+        className="min-h-0 flex-1 overflow-y-auto px-4 py-5 sm:px-7"
+        style={{ backgroundColor: "var(--app-panel-bg)" }}
+      >
         <div className="mx-auto flex max-w-4xl flex-col gap-5">
           {messages.map((message, index) => (
             <ChatMessage key={`${message.role}-${index}`} message={message} />
           ))}
 
           {isLoading && (
-            <div className="flex items-center gap-3 text-sm text-slate-300">
-              <div className="flex h-9 w-9 items-center justify-center rounded-full bg-teal-400 text-slate-950">
+            <div
+              className="flex items-center gap-3 text-sm"
+              style={{ color: "var(--chat-muted-text)" }}
+            >
+              <div
+                className="flex h-9 w-9 items-center justify-center rounded-full"
+                style={{
+                  backgroundColor: "var(--chat-accent)",
+                  color: "var(--chat-accent-text)",
+                }}
+              >
                 <Loader2 aria-hidden="true" className="h-5 w-5 animate-spin" />
               </div>
               <span>{copy.loading}</span>

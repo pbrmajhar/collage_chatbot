@@ -44,6 +44,7 @@ model Booking {
   studentEmail String
   studentPhone String?
   comment      String        @default("")
+  isRead       Boolean       @default(false)
   language     String        @default("ja")
   status       BookingStatus @default(CONFIRMED)
   createdAt    DateTime      @default(now())
@@ -51,6 +52,7 @@ model Booking {
   slot         AvailableSlot @relation(fields: [slotId], references: [id], onDelete: Restrict)
 
   @@unique([studentPhone])
+  @@index([isRead, createdAt])
   @@index([slotId])
   @@index([studentEmail])
 }
@@ -73,4 +75,16 @@ model AdminSetting {
   value     String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+model AdminUser {
+  id           String   @id @default(cuid())
+  name         String
+  email        String   @unique
+  passwordHash String
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@index([isActive, email])
 }

@@ -5,10 +5,12 @@ import {
   CalendarCheck,
   Clock3,
   Settings,
+  UserRound,
 } from "lucide-react";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { auth } from "@/auth";
+import { AiServiceNoticeDismissButton } from "@/components/AiServiceNoticeDismissButton";
 import { AdminShell } from "@/components/AdminShell";
 import { getAdminSettings } from "@/lib/admin-settings";
 import { getAiServiceNotice } from "@/lib/ai-service-status";
@@ -38,6 +40,12 @@ const adminCards = [
     icon: Settings,
     title: "Settings",
   },
+  {
+    description: "管理者ログイン用のユーザーを追加・編集します。",
+    href: "/admin/users",
+    icon: UserRound,
+    title: "ユーザー管理",
+  },
 ];
 
 export default async function AdminPage() {
@@ -63,18 +71,19 @@ export default async function AdminPage() {
                 aria-hidden="true"
                 className="mt-0.5 h-5 w-5 shrink-0 text-amber-200"
               />
-              <div>
+              <div className="min-w-0 flex-1">
                 <h2 className="text-sm font-semibold">
-                  AI service attention needed
+                  AIサービスの確認が必要です
                 </h2>
                 <p className="mt-1 text-sm text-amber-100">
                   {aiServiceNotice.message}
                 </p>
                 <p className="mt-2 text-xs text-amber-100/80">
-                  Last detected:{" "}
+                  検出日時:{" "}
                   {new Date(aiServiceNotice.createdAt).toLocaleString("ja-JP")}
                 </p>
               </div>
+              <AiServiceNoticeDismissButton />
             </div>
           </div>
         )}

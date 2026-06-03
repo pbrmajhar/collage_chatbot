@@ -12,6 +12,7 @@ export type AdminSlot = {
   id: string;
   date: string;
   fromTime: string;
+  isPast: boolean;
   toTime: string;
   timeRange: string;
   topic: string;
@@ -66,6 +67,7 @@ export function toAdminSlot(slot: SlotWithBookings): AdminSlot {
     id: slot.id,
     date: start.date,
     fromTime: start.time,
+    isPast: endsAt < new Date(),
     toTime: end.time,
     timeRange: `${start.time}-${end.time}`,
     topic: slot.topic,

@@ -72,3 +72,25 @@ export async function saveAiServiceNotice(message: string) {
     console.error("AI service notice save error:", error);
   }
 }
+
+export async function clearAiServiceNotice() {
+  if (!isDatabaseConfigured()) {
+    return;
+  }
+
+  try {
+    const prisma = getPrisma();
+
+    if (!prisma.adminSetting) {
+      return;
+    }
+
+    await prisma.adminSetting.deleteMany({
+      where: {
+        key: aiServiceNoticeKey,
+      },
+    });
+  } catch (error) {
+    console.error("AI service notice clear error:", error);
+  }
+}
